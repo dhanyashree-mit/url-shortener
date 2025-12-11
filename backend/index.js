@@ -64,6 +64,24 @@ app.post('/api/shorten', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+app.get('/init-db', async (req, res) => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS urls (
+        id SERIAL PRIMARY KEY,
+        code TEXT UNIQUE NOT NULL,
+        long_url TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        hits INTEGER DEFAULT 0
+      );
+    `);
+    res.send("Database table created successfully!");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error creating table");
+  }
+});
+
 
 // Return list of all urls (ordered newest first)
 app.get('/api/urls', async (req, res) => {
